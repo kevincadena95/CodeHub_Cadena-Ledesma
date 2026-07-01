@@ -94,7 +94,16 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("mensaje", "Sesión cerrada correctamente"));
     }
 
+    @GetMapping("/perfil")
+    public ResponseEntity<?> perfil() {
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
 
+        return ResponseEntity.ok(Map.of(
+                "mensaje", "Acceso autorizado",
+                "usuarioActual", username
+        ));
+    }
 
 }
 
