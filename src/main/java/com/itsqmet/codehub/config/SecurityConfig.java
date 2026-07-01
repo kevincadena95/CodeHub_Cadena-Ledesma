@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers("/api/empleados/**").hasAnyRole("ADMIN", "EMPLEADO")
                         .requestMatchers("/api/perfiles-empleados/**").hasAnyRole("ADMIN", "EMPLEADO")
+                        .requestMatchers("/api/proyectos/reporte/pdf").permitAll()
                         .requestMatchers("/api/proyectos/**").hasAnyRole("ADMIN", "EMPLEADO", "CLIENTE")
                         .anyRequest().authenticated()
                 )

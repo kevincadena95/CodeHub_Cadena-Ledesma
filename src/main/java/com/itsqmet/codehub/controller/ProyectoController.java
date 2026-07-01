@@ -1,10 +1,12 @@
 package com.itsqmet.codehub.controller;
 
 import com.itsqmet.codehub.model.Proyecto;
+import com.itsqmet.codehub.service.ProyectoReporteService;
 import com.itsqmet.codehub.service.ProyectoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,9 @@ public class ProyectoController {
 
     @Autowired
     private ProyectoService proyectoService;
+
+    @Autowired
+    private ProyectoReporteService proyectoReporteService;
 
     @GetMapping
     public ResponseEntity<List<Proyecto>> obtenerTodo() {
@@ -39,7 +44,11 @@ public class ProyectoController {
     public ResponseEntity<?> crear(@Valid @RequestBody Proyecto proyecto, BindingResult result) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
-            result.getFieldErrors().forEach(error -> errores.put(error.getField(), error.getDefaultMessage()));
+
+            result.getFieldErrors().forEach(error ->
+                    errores.put(error.getField(), error.getDefaultMessage())
+            );
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
         }
 
@@ -48,13 +57,16 @@ public class ProyectoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody Proyecto proyecto,
+    public ResponseEntity<?> actualizar(@PathVariable Long id,
+                                        @Valid @RequestBody Proyecto proyecto,
                                         BindingResult result) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
+
             result.getFieldErrors().forEach(error ->
                     errores.put(error.getField(), error.getDefaultMessage())
             );
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errores);
         }
 
@@ -69,6 +81,18 @@ public class ProyectoController {
         if (proyectoService.eliminar(id)) {
             return ResponseEntity.ok(Map.of("mensaje", "Proyecto eliminado correctamente"));
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Proyecto con id " + id + " no encontrado"));
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", "Proyecto con id " + id + " no encontrado"));
+    }
+
+    @GetMapping("/reporte/pdf")
+    public ResponseEntity<byte[]> generarReportePdf() {
+        byte[] pdf = proyectoReporteService.generarReporteProyectosPdf();
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=reporte_proyectos.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 }
