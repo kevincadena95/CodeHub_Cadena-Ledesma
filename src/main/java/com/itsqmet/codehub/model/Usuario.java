@@ -27,4 +27,8 @@ public class Usuario {
     @Column(unique=true, nullable = false)
     private String email;
 
+    @NotBlank(message = "El rol es obligatorio")
+    @Column(nullable = false)
+    private String rol;
+
 }

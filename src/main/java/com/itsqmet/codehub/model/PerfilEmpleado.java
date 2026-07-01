@@ -5,8 +5,7 @@ import jakarta.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
@@ -45,12 +44,8 @@ public class PerfilEmpleado {
     @Column(nullable = false)
     private String modalidadTrabajo;
 
-    @OneToOne(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("empleado")
-    private PerfilEmpleado perfilEmpleado;
-
-    @ManyToMany(mappedBy = "empleados")
-    @JsonIgnoreProperties("empleados")
-    private List<Proyecto> proyectos;
-
+    @OneToOne
+    @JoinColumn(name = "empleado_id", nullable = false, unique = true)
+    @JsonIgnoreProperties("perfilEmpleado")
+    private Empleado empleado;
 }
