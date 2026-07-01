@@ -3,7 +3,11 @@ package com.itsqmet.codehub.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 
+import java.util.List;
+
+@Data
 @Entity
 @Table(name = "empleados")
 public class Empleado {
@@ -50,90 +54,7 @@ public class Empleado {
     @JsonIgnoreProperties("empleado")
     private PerfilEmpleado perfilEmpleado;
 
-    public Empleado() {
-    }
-
-    public Empleado(Long id, String cedula, String nombres, String apellidos, String correo, String cargo, String departamento, double salario, PerfilEmpleado perfilEmpleado) {
-        this.id = id;
-        this.cedula = cedula;
-        this.nombres = nombres;
-        this.apellidos = apellidos;
-        this.correo = correo;
-        this.cargo = cargo;
-        this.departamento = departamento;
-        this.salario = salario;
-        this.perfilEmpleado = perfilEmpleado;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCedula() {
-        return cedula;
-    }
-
-    public void setCedula(String cedula) {
-        this.cedula = cedula;
-    }
-
-    public String getNombres() {
-        return nombres;
-    }
-
-    public void setNombres(String nombres) {
-        this.nombres = nombres;
-    }
-
-    public String getApellidos() {
-        return apellidos;
-    }
-
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
-
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public String getCargo() {
-        return cargo;
-    }
-
-    public void setCargo(String cargo) {
-        this.cargo = cargo;
-    }
-
-    public String getDepartamento() {
-        return departamento;
-    }
-
-    public void setDepartamento(String departamento) {
-        this.departamento = departamento;
-    }
-
-    public double getSalario() {
-        return salario;
-    }
-
-    public void setSalario(double salario) {
-        this.salario = salario;
-    }
-
-    public PerfilEmpleado getPerfilEmpleado() {
-        return perfilEmpleado;
-    }
-
-    public void setPerfilEmpleado(PerfilEmpleado perfilEmpleado) {
-        this.perfilEmpleado = perfilEmpleado;
-    }
+    @ManyToMany(mappedBy = "empleados")
+    @JsonIgnoreProperties("empleados")
+    private List<Proyecto> proyectos;
 }
