@@ -2,8 +2,8 @@ package com.itsqmet.codehub.controller;
 
 import com.itsqmet.codehub.model.Usuario;
 import com.itsqmet.codehub.service.UsuarioService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.*;
@@ -11,19 +11,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-
-
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin("*")
 public class AuthController {
     @Autowired
     private UsuarioService usuarioService;
@@ -53,7 +52,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> Login(
             @RequestBody Map<String, String> credenciales,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
         String username = credenciales.get("username");
         String password = credenciales.get("password");
 
@@ -64,22 +65,28 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            HttpSession session = request.getSession(true);
-            session.setAttribute(
-                    "SPRING_SECURITY_CONTEXT",
-                    SecurityContextHolder.getContext()
-            );
+            HttpSessionSecurityContextRepository contextRepository = new HttpSessionSecurityContextRepository();
+            contextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
+            HttpSession session = request.getSession(false);
+            String sessionId = (session != null) ? session.getId() : "No session";
+
+            List<String> roles = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+
             return ResponseEntity.ok(Map.of(
                     "mensaje", "Login exitoso",
                     "usuario", username,
-                    "sessionId", session.getId()
-                    ));
+                    "roles", roles,
+                    "sessionId", sessionId
+            ));
 
         } catch (AuthenticationException e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "username o contraseña incorrectos"));
         }
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
@@ -96,17 +103,17 @@ public class AuthController {
 
     @GetMapping("/perfil")
     public ResponseEntity<?> perfil() {
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
 
         return ResponseEntity.ok(Map.of(
                 "mensaje", "Acceso autorizado",
-                "usuarioActual", username
+                "usuarioActual", authentication.getName(),
+                "roles", roles
         ));
     }
 
 }
-
-
-
-

@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/perfiles-empleados")
-@CrossOrigin("*")
 public class PerfilEmpleadoController {
 
     @Autowired
